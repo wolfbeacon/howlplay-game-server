@@ -1,0 +1,22 @@
+{
+  "name": "howlplay-game-server",
+  "version": "1.0.0",
+  "description": "[![Build Status](https://travis-ci.org/wolfbeacon/howlplay-game-server.svg?branch=master)](https://travis-ci.org/wolfbeacon/howlplay-game-server)",
+  "main": "server.js",
+  "scripts": {
+    "test": "npm -v"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wolfbeacon/howlplay-game-server.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wolfbeacon/howlplay-game-server/issues"
+  },
+  "homepage": "https://github.com/wolfbeacon/howlplay-game-server#readme",
+  "dependencies": {
+    "ws": "^4.0.0"
+  }
+}
