@@ -19,6 +19,7 @@
   "dependencies": {
     "ws": "^4.0.0",
     "nedb": "^1.8.0",
-    "nedb-promise": "^2.0.1"
+    "nedb-promise": "^2.0.1",
+    "md5": "^2.2.1"
   }
 }

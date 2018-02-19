@@ -4,15 +4,9 @@ const Driver    = require('./lib/howlplay-ws-driver');
 
 const config    = require('./config/config');
 
-const Datastore = require('nedb-promise');
-
 // Initialize variables
 let storage              = new Storage();
 let connectionId         = 0;
-storage.data.connections = {};
-storage.data.db = new Datastore();
-
-storage.data.db.ensureIndex({fieldName: 'nickname', unique: true}, (err) => {});
 
 const wss = new WebSocket.Server({ port: config.port }, ()=> {
     console.log("Started Listening On Port:", config.port);
@@ -41,25 +35,34 @@ wss.on('connection', (ws) => {
                 break;
             case 1:
                 Driver.handlers.nicknameHandler(currentConnection, data, storage).then(() => {
-                    Driver.emitters.confirmNicknameEmitter(currentConnection, storage).then((buf) => {
-                        ws.send(buf);
-                    })
+                    Driver.emitters.confirmNicknameEmitter(currentConnection, storage).then((buf) => ws.send(buf));
                 }).catch(() => {
-                    Driver.emitters.rejectNicknameEmitter(currentConnection, storage).then((buf) => {
-                        ws.send(buf);
-                    });
+                    Driver.emitters.rejectNicknameEmitter(currentConnection, storage).then((buf) => ws.send(buf));
                 });
+                break;
+            case 4:
+                Driver.handlers.quizHandler(currentConnection, data, storage).then(() => {
+                    Driver.emitters.confirmQuizEmitter(currentConnection, storage).then((buf) => ws.send(buf));
+                }).catch(() => {
+                    Driver.emitters.rejectQuizEmitter(currentConnection, storage).then((buf) => ws.send(buf));
+                });
+                break;
+            default:
                 break;
         }
     });
 
+    ws.on('close', async () => {
+        console.log("Connection " + currentId + " is dead.");
+        currentConnection.dead = true;
+        await storage.data.participants.remove({_id: currentId});
+    });
+
     // Continue to ping the client
-    let pingInterval = setInterval(() => {
+    let pingInterval = setInterval(async () => {
         // If we haven't seen a ping in 4 seconds, set it to dead, and stop ping.
         let now = new Date();
-        if((now.getTime() - currentConnection.lastPing.getTime()) > 4000){
-            currentConnection.dead = true;
-            console.log("Connection " + currentId + " is dead.");
+        if((now.getTime() - currentConnection.lastPing.getTime()) > 4000) {
             clearInterval(pingInterval);
             currentConnection.ws.close();
             return;
