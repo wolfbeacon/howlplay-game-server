@@ -4,12 +4,19 @@ const Driver    = require('./lib/howlplay-ws-driver');
 
 const config    = require('./config/config');
 
+const Datastore = require('nedb-promise');
+
 // Initialize variables
 let storage              = new Storage();
 let connectionId         = 0;
 storage.data.connections = {};
+storage.data.db = new Datastore();
 
-const wss = new WebSocket.Server({ port: config.port });
+storage.data.db.ensureIndex({fieldName: 'nickname', unique: true}, (err) => {});
+
+const wss = new WebSocket.Server({ port: config.port }, ()=> {
+    console.log("Started Listening On Port:", config.port);
+});
 
 
 wss.on('connection', (ws) => {
@@ -17,10 +24,12 @@ wss.on('connection', (ws) => {
     // Push this socket to connection pool
     let currentId = connectionId;
     let currentConnection = {
-        ws: ws,
+        id: connectionId,
         lastPing: new Date(),
-        dead: false
+        dead: false,
+        ws: ws
     };
+
     storage.data.connections[connectionId] = currentConnection;
     connectionId++;
 
@@ -28,8 +37,19 @@ wss.on('connection', (ws) => {
         let dataView = new Uint8Array(data);
         switch(dataView[0]){
             case 0:
-                Driver.handlers.pingHandler(currentConnection, data, storage).then(()=>{}).catch(()=>{})
-                break
+                Driver.handlers.pingHandler(currentConnection, data, storage).then(()=>{}).catch(()=>{});
+                break;
+            case 1:
+                Driver.handlers.nicknameHandler(currentConnection, data, storage).then(() => {
+                    Driver.emitters.confirmNicknameEmitter(currentConnection, storage).then((buf) => {
+                        ws.send(buf);
+                    })
+                }).catch(() => {
+                    Driver.emitters.rejectNicknameEmitter(currentConnection, storage).then((buf) => {
+                        ws.send(buf);
+                    });
+                });
+                break;
         }
     });
 

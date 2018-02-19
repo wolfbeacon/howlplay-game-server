@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/wolfbeacon/howlplay-game-server#readme",
   "dependencies": {
-    "ws": "^4.0.0"
+    "ws": "^4.0.0",
+    "nedb": "^1.8.0",
+    "nedb-promise": "^2.0.1"
   }
 }
