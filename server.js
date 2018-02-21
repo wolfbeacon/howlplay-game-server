@@ -35,16 +35,24 @@ wss.on('connection', (ws) => {
                 break;
             case 1:
                 Driver.handlers.nicknameHandler(currentConnection, data, storage).then(() => {
-                    Driver.emitters.confirmNicknameEmitter(currentConnection, storage).then((buf) => ws.send(buf));
+                    Driver.emitters.confirmNicknameEmitter(null).then((buf) => ws.send(buf));
                 }).catch(() => {
-                    Driver.emitters.rejectNicknameEmitter(currentConnection, storage).then((buf) => ws.send(buf));
+                    Driver.emitters.rejectNicknameEmitter(null).then((buf) => ws.send(buf));
                 });
                 break;
             case 4:
                 Driver.handlers.quizHandler(currentConnection, data, storage).then(() => {
-                    Driver.emitters.confirmQuizEmitter(currentConnection, storage).then((buf) => ws.send(buf));
+                    Driver.emitters.confirmQuizEmitter(null).then((buf) => ws.send(buf));
                 }).catch(() => {
-                    Driver.emitters.rejectQuizEmitter(currentConnection, storage).then((buf) => ws.send(buf));
+                    Driver.emitters.rejectQuizEmitter(null).then((buf) => ws.send(buf));
+                });
+                break;
+            case 7:
+                Driver.handlers.quizAnswersHandler(currentConnection, data, storage).then((answers) => {
+                    let payload = [answers.index, answers.answers.length];
+                    Driver.emitters.confirmAnswersEmitter(payload).then(buf => ws.send(buf));
+                }).catch(() => {
+                    Driver.emitters.rejectAnswersEmitter(null).then(buf => ws.send(buf));
                 });
                 break;
             default:
