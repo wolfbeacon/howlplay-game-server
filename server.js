@@ -3,7 +3,6 @@ const Storage   = require('./lib/storage');
 const Driver    = require('./lib/howlplay-ws-driver');
 const Queue     = require('./lib/functionQueue');
 const config    = require('./config/config');
-const util      = require('./lib/util');
 
 // Initialize variables
 let storage              = new Storage();
@@ -41,8 +40,10 @@ wss.on('connection', (ws) => {
                 });
                 break;
             case 4:
-                Driver.handlers.quizHandler(currentConnection, data, storage).then(() => {
+                Driver.handlers.quizHandler(currentConnection, data, storage).then((quiz) => {
+                    let payload = [quiz.quizDuration];
                     Driver.emitters.confirmQuizEmitter(null).then((buf) => ws.send(buf));
+                    Driver.emitters.gameDetailsEmitter(payload).then((buf) => ws.send(buf));
                 }).catch(() => {
                     Driver.emitters.rejectQuizEmitter(null).then((buf) => ws.send(buf));
                 });
@@ -136,7 +137,6 @@ let batchInterval = setInterval(async () => {
       console.log("payload: " + payload);
       if (payload != []) {
         console.log("BROADCASTING");
-        payload[0] = 11;
         wss.broadcast(new Uint8Array(payload));
       }
     });
