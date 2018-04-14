@@ -33,7 +33,9 @@ wss.on('connection', (ws) => {
                 Driver.handlers.pingHandler(currentConnection, data, storage).then(()=>{}).catch(()=>{});
                 break;
             case 1:
-                Driver.handlers.nicknameHandler(currentConnection, data, storage).then(() => {
+                console.log("Request to set nickname");
+                Driver.handlers.nicknameHandler(currentConnection, data, storage).then((nickname) => {
+                    console.log("Nickname set", nickname);
                     Driver.emitters.confirmNicknameEmitter(null).then((buf) => ws.send(buf));
                 }).catch(() => {
                     Driver.emitters.rejectNicknameEmitter(null).then((buf) => ws.send(buf));
