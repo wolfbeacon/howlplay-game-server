@@ -63,6 +63,10 @@ wss.on('connection', (ws) => {
         }
     });
 
+    ws.on('error', (e) => {
+        console.log("Websocket error", e)
+    });
+
     ws.on('close', async () => {
         console.log("Connection " + currentId + " is dead.");
         currentConnection.dead = true;
