@@ -28,6 +28,7 @@ wss.on('connection', (ws) => {
 
     ws.on('message', (data) => {
         let dataView = new Uint8Array(data);
+        console.log(dataView[0]);
         switch(dataView[0]){
             case 0:
                 Driver.handlers.pingHandler(currentConnection, data, storage).then(()=>{}).catch(()=>{});
@@ -60,7 +61,13 @@ wss.on('connection', (ws) => {
                 break;
             case 14:
                 console.log("Distribute game details");
-                
+                Driver.handlers.gameDetailsHandler(currentConnection, data, storage).then((users) => {
+                  // console.log("Server.js line 65");
+                  // console.log(users);
+                  Driver.emitters.gameDetailsEmitter(users).then(buf => ws.send(buf));
+                }).catch(() => {
+                  ws.send("Failed to retrieve players");
+                });
                 break;
             default:
                 break;
