@@ -58,6 +58,10 @@ wss.on('connection', (ws) => {
                     Driver.emitters.rejectAnswersEmitter(null).then(buf => ws.send(buf));
                 });
                 break;
+            case 14:
+                console.log("Distribute game details");
+                
+                break;
             default:
                 break;
         }
