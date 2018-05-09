@@ -3,6 +3,7 @@ const Storage   = require('./lib/storage');
 const Driver    = require('./lib/howlplay-ws-driver');
 const Queue     = require('./lib/functionQueue');
 const config    = require('./config/config');
+const util      = require('./lib/util');
 
 // Initialize variables
 let storage              = new Storage();
@@ -62,9 +63,13 @@ wss.on('connection', (ws) => {
             case 14:
                 console.log("Distribute game details");
                 Driver.handlers.gameDetailsHandler(currentConnection, data, storage).then((users) => {
-                  // console.log("Server.js line 65");
-                  // console.log(users);
-                  Driver.emitters.gameDetailsEmitter(users).then(buf => ws.send(buf));
+                  var buffer = util.stringToArrayBuffer(JSON.stringify(users));
+                  // var buffer = util.stringToArrayBuffer(JSON.stringify(['skittles']));
+                  Driver.emitters.gameDetailsEmitter(buffer).then((buf) => {
+                    console.log("Sending buf");
+                    console.log(buf);
+                    ws.send(buf);
+                  });
                 }).catch(() => {
                   ws.send("Failed to retrieve players");
                 });
