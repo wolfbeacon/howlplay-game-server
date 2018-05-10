@@ -1,7 +1,7 @@
 FROM node:8.11.1
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /build
 
 # Install app dependancies
 # A wildcard is used to ensure both the package and package-lock are copied
@@ -16,4 +16,4 @@ COPY . .
 EXPOSE 9090
 
 # start server
-CMD["npm","start"]
+CMD ["npm","start"]
