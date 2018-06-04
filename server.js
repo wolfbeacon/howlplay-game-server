@@ -8,9 +8,11 @@ const util      = require('./lib/util');
 // Initialize variables
 let storage              = new Storage();
 let connectionId         = 0;
+let startTime            = new Date();
 
 const wss = new WebSocket.Server({ port: config.port }, ()=> {
-    console.log("Started Listening On Port:", config.port);
+    console.log("Started Listening On Port: ", config.port);
+    console.log("Server running at: ", start);
 });
 
 wss.on('connection', (ws) => {
@@ -74,6 +76,12 @@ wss.on('connection', (ws) => {
                   ws.send("Failed to retrieve players");
                 });
                 break;
+            case 15:
+                console.log("Return the start datetime (Should be made to be dependent on protocol 12)");
+                var buffer = util.stringToArrayBuffer(String(startTime));
+                Driver.emitters.gameStartTimeEmitter(buffer).then((buf) => {
+                  ws.send(buf);
+                });
             default:
                 break;
         }
