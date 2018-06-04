@@ -12,7 +12,7 @@ let startTime            = new Date();
 
 const wss = new WebSocket.Server({ port: config.port }, ()=> {
     console.log("Started Listening On Port: ", config.port);
-    console.log("Server running at: ", start);
+    console.log("Server running at: ", startTime);
 });
 
 wss.on('connection', (ws) => {
