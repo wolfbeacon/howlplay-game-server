@@ -62,15 +62,21 @@ wss.on('connection', (ws) => {
                     Driver.emitters.rejectAnswersEmitter(null).then(buf => ws.send(buf));
                 });
                 break;
+            case 12:
+                console.log("LET ZE GAMES BEGIN!");
+                wss.broadcast((client) => { 
+                    Driver.emitters.startGameEmitter().then((buf) => { client.send(buf) });
+                });
             case 13:
                 console.log("End Ze Game!");
-                wss.broadcast((client) => { Driver.emitters.endGameEmitter().then((buf) => { client.send(buf) })});
+                wss.broadcast((client) => { 
+                    Driver.emitters.endGameEmitter().then((buf) => { client.send(buf) }); 
+                });
                 break;
             case 14:
                 console.log("Distribute game details");
                 Driver.handlers.gameDetailsHandler(currentConnection, data, storage).then((users) => {
                   var buffer = util.stringToArrayBuffer(JSON.stringify(users));
-                  // var buffer = util.stringToArrayBuffer(JSON.stringify(['skittles']));
                   Driver.emitters.gameDetailsEmitter(buffer).then((buf) => {
                     console.log("Sending buf");
                     ws.send(buf);
