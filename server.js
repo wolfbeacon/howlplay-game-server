@@ -67,6 +67,7 @@ wss.on('connection', (ws) => {
                 wss.broadcast((client) => { 
                     Driver.emitters.startGameEmitter().then((buf) => { client.send(buf) });
                 });
+                break;
             case 13:
                 console.log("End Ze Game!");
                 wss.broadcast((client) => { 
