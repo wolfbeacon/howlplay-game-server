@@ -4,6 +4,7 @@
   "description": "[![Build Status](https://travis-ci.org/wolfbeacon/howlplay-game-server.svg?branch=master)](https://travis-ci.org/wolfbeacon/howlplay-game-server)",
   "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "npm -v"
   },
   "repository": {
@@ -20,7 +21,6 @@
     "md5": "^2.2.1",
     "nedb": "^1.8.0",
     "nedb-promise": "^2.0.1",
-    "nodemon": "^1.15.1",
     "ws": "^4.0.0"
   }
 }
