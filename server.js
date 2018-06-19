@@ -10,9 +10,9 @@ let storage              = new Storage();
 let connectionId         = 0;
 let startTime            = new Date();
 
-const wss = new WebSocket.Server({ port: config.port }, ()=> {
-    console.log("Started Listening On Port: ", config.port);
-    console.log("Server running at: ", startTime);
+const port = process.env.port  || config.port;
+const wss = new WebSocket.Server({ port: port}, ()=> {
+    console.log("Started Listening On Port:", port);
 });
 
 wss.on('connection', (ws) => {
