@@ -8,6 +8,7 @@ const util      = require('./lib/util');
 // Initialize variables
 let storage              = new Storage();
 let connectionId         = 0;
+let started              = false;
 let startTime            = new Date();
 
 const wss = new WebSocket.Server({ port: config.port }, ()=> {
@@ -31,7 +32,7 @@ wss.on('connection', (ws) => {
 
     ws.on('message', (data) => {
         let dataView = new Uint8Array(data);
-        // console.log(dataView[0]);
+        console.log(dataView[0]);
         switch(dataView[0]){
             case 0:
                 Driver.handlers.pingHandler(currentConnection, data, storage).then(()=>{}).catch(()=>{});
@@ -64,6 +65,7 @@ wss.on('connection', (ws) => {
                 break;
             case 12:
                 console.log("LET ZE GAMES BEGIN!");
+                started = true;
                 wss.broadcast((client) => { 
                     Driver.emitters.startGameEmitter().then((buf) => { client.send(buf) });
                 });
@@ -92,6 +94,23 @@ wss.on('connection', (ws) => {
                 Driver.emitters.gameStartTimeEmitter(buffer).then((buf) => {
                   ws.send(buf);
                 });
+                break;
+            case 16:
+                console.log("Soft Restarting Server");
+
+                // Disconnect everyone
+                wss.broadcast((client) => {
+                    client.close();
+                }, () => {
+                    // Clear Queue and DB of people (TBH people gets removed when disconnect, but assume it gets removed?)
+                    Queue.clearQueue();
+                    Driver.handlers.clearStorageHandler(storage).then(() => {
+                        started = false;
+                        connectionId = 0;
+                        startTime = new Date();
+                    });
+                });
+                break;
             default:
                 break;
         }
@@ -124,8 +143,11 @@ wss.on('connection', (ws) => {
 });
 
 // Broadcasting function
-wss.broadcast = function broadcast(callback) {
+wss.broadcast = function broadcast(action, callback) {
   wss.clients.forEach(function each(client) {
-    callback(client);
+    action(client);
   });
+  if (callback) {
+    callback();
+  }
 };
